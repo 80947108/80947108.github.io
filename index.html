@@ -52,7 +52,61 @@
 		document.writeln("Copyright&nbsp;&copy;&nbsp;2022 - "+mydate.getFullYear()+'&nbsp;飞哥<br />All&nbsp;Rights&nbsp;Reserved');</script></p> 
 	<p class="copyright">你给我一滴眼泪，我就看到了你心中全部的海洋</p> 
     <p class="copyright"> <a target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=80947108&amp;site=qq&amp;menu=yes"> <img src="images\svg\qq.svg" width="30" alt="QQ" title="QQ" />&nbsp;&nbsp;</a> <a target="_blank" href="mailto:80947108@qq.com"> <img src="images\svg\mail.svg" width="30" alt="Mail" title="Mail" />&nbsp;&nbsp;</a> <a target="_blank" href="/money_receiving_QR_code"> <img src="images\svg\money_receiving_QR_code.svg" width="30" alt="赞赏作者" title="买杯奶茶" />&nbsp;&nbsp;</a> <a target="_blank" href="https://github.com/80947108"> <img src="images\svg\github.svg" width="30" alt="Github" title="Github" />&nbsp;&nbsp;</a> <a target="_blank" href="https://gitee.com/"> <img src="images\svg\gitee.svg" width="30" alt="Gitee" title="Gitee" />&nbsp;&nbsp;</a> <a target="_blank" href="https://hit.youtd.cc/"> <img src="images\svg\coolapk.svg" width="30" alt="Coolapk" title="Coolapk" /></a> </p> 
-   </footer> 
+   
+	  		<!--网站运行时间-->
+		<script>
+    function secondToDate(second) {
+        if (!second) {
+            return 0;
+        }
+        var time = new Array(0, 0, 0, 0, 0);
+        if (second >= 365 * 24 * 3600) {
+            time[0] = parseInt(second / (365 * 24 * 3600));
+            second %= 365 * 24 * 3600;
+        }
+        if (second >= 24 * 3600) {
+            time[1] = parseInt(second / (24 * 3600));
+            second %= 24 * 3600;
+        }
+        if (second >= 3600) {
+            time[2] = parseInt(second / 3600);
+            second %= 3600;
+        }
+        if (second >= 60) {
+            time[3] = parseInt(second / 60);
+            second %= 60;
+        }
+        if (second > 0) {
+            time[4] = second;
+        }
+        return time;
+    }</script><script type="text/javascript" language="javascript">
+    function setTime() {
+        var create_time = Math.round(new Date(Date.UTC(2023, 02, 02, 6, 6, 6)).getTime() / 1000);
+        var timestamp = Math.round((new Date().getTime() + 8 * 60 * 60 * 1000) / 1000);
+        currentTime = secondToDate((timestamp - create_time));
+        currentTimeHtml = currentTime[0] + '年' + currentTime[1] + '天'
+                + currentTime[2] + '时' + currentTime[3] + '分' + currentTime[4]
+                + '秒';
+        document.getElementById("htmer_time").innerHTML = currentTimeHtml;
+    }    setInterval(setTime, 1000);</script>
+		
+		
+		
+
+		<div class="footer ch">
+			<div class="container">
+				<h4>© 2023 Powered by 945KM</h4>
+				
+				<br>
+				<h4>本网站已经稳定运行：<span id="htmer_time" style="color: red;"></span></h4>
+
+				
+				
+			</div>
+		</div>
+	   
+	  </footer> 
   </div> 
   <canvas id="sakura" style="z-index: 2;
     position: fixed;
