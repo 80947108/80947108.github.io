@@ -3,527 +3,535 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M3U播放器</title>
+    <title>M3U播放列表</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background: #1a1a1a;
-            color: white;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f0f0f0;
+            min-height: 100vh;
             padding: 20px;
-            height: 100vh;
         }
         
         .container {
-            display: flex;
-            height: calc(100vh - 40px);
-            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
         
-        .channels {
-            width: 350px;
-            background: #2a2a2a;
-            border-radius: 10px;
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #4cc9f0, #4361ee);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+        
+        .subtitle {
+            color: #a0a0c0;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .player-section, .playlist-section {
+            background-color: rgba(30, 30, 46, 0.7);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #4cc9f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            font-size: 1.3rem;
+        }
+        
+        #videoPlayer {
+            width: 100%;
+            height: 300px;
+            background-color: #000;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .player-info {
+            background-color: rgba(0, 0, 0, 0.3);
             padding: 15px;
-            overflow-y: auto;
+            border-radius: 8px;
+            margin-top: 15px;
         }
         
-        .player {
-            flex: 1;
-            background: #000;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        h2 {
-            margin-bottom: 15px;
-            color: #4CAF50;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #444;
-        }
-        
-        .channel-item {
-            padding: 12px;
-            background: #333;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .channel-item:hover {
-            background: #3a3a3a;
-            transform: translateX(5px);
-        }
-        
-        .channel-item.active {
-            background: #4CAF50;
-            font-weight: bold;
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
-        }
-        
-        .channel-name {
-            font-size: 16px;
+        .current-playing {
+            font-size: 1.1rem;
+            color: #f0f0f0;
             margin-bottom: 5px;
         }
         
-        .channel-url {
-            font-size: 12px;
-            color: #aaa;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+        .channel-info {
+            font-size: 0.9rem;
+            color: #a0a0c0;
         }
         
-        #video {
-            width: 100%;
-            height: 100%;
-            border-radius: 10px 10px 0 0;
+        .playlist-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.2);
         }
         
-        .info {
+        .playlist-item {
             padding: 15px;
-            background: #2a2a2a;
-            border-radius: 0 0 10px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         
-        .current-channel {
-            font-size: 18px;
+        .playlist-item:hover {
+            background-color: rgba(76, 201, 240, 0.1);
+        }
+        
+        .playlist-item.active {
+            background-color: rgba(76, 201, 240, 0.2);
+            border-left: 4px solid #4cc9f0;
+        }
+        
+        .item-number {
+            width: 30px;
+            height: 30px;
+            background-color: rgba(76, 201, 240, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
-            color: #4CAF50;
-            margin-bottom: 10px;
+            color: #4cc9f0;
         }
         
-        .status {
-            padding: 10px;
-            background: #333;
-            border-radius: 5px;
-            font-size: 14px;
-            color: #ddd;
+        .item-content {
+            flex: 1;
+        }
+        
+        .item-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .item-url {
+            font-size: 0.8rem;
+            color: #a0a0c0;
+            word-break: break-all;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        button {
+            background: linear-gradient(90deg, #4361ee, #3a0ca3);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
         
         .loading {
-            display: none;
             text-align: center;
-            padding: 20px;
-            color: #4CAF50;
+            padding: 40px;
+            color: #a0a0c0;
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #4cc9f0;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .error {
-            color: #ff5555;
-            background: rgba(255, 85, 85, 0.1);
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            display: none;
+            color: #f72585;
+            padding: 15px;
+            background-color: rgba(247, 37, 133, 0.1);
+            border-radius: 8px;
+            margin-top: 15px;
         }
         
-        .file-info {
-            background: #333;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            font-size: 14px;
+        .empty-playlist {
+            text-align: center;
+            padding: 40px;
+            color: #a0a0c0;
         }
         
-        .group-header {
-            background: #444;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 15px 0 10px 0;
-            font-weight: bold;
-            color: #4CAF50;
-            cursor: pointer;
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #a0a0c0;
+            font-size: 0.9rem;
+        }
+        
+        /* 滚动条样式 */
+        .playlist-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .playlist-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+        
+        .playlist-container::-webkit-scrollbar-thumb {
+            background: rgba(76, 201, 240, 0.5);
+            border-radius: 4px;
+        }
+        
+        .playlist-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(76, 201, 240, 0.8);
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <div class="channels">
-            <h2>📺 频道列表</h2>
-            <div class="file-info" id="file-info">
-                正在加载 playlist.m3u...
-            </div>
-            <div class="loading" id="loading">
-                加载中...
-            </div>
-            <div class="error" id="error"></div>
-            <div id="channels-list">
-                <!-- 频道列表将在这里显示 -->
-            </div>
+        <header>
+            <h1><i class="fas fa-list-music"></i> M3U播放列表生成器</h1>
+            <p class="subtitle">自动读取 playlist.m3u 文件并生成可播放列表</p>
+        </header>
+        
+        <div class="main-content">
+            <section class="player-section">
+                <h2 class="section-title"><i class="fas fa-play-circle"></i> 视频播放器</h2>
+                <video id="videoPlayer" controls></video>
+                
+                <div class="player-info">
+                    <div class="current-playing">等待播放...</div>
+                    <div class="channel-info">选择一个频道开始播放</div>
+                </div>
+                
+                <div class="controls">
+                    <button id="prevBtn" disabled>
+                        <i class="fas fa-step-backward"></i> 上一个
+                    </button>
+                    <button id="reloadBtn">
+                        <i class="fas fa-redo"></i> 重新加载列表
+                    </button>
+                    <button id="nextBtn" disabled>
+                        <i class="fas fa-step-forward"></i> 下一个
+                    </button>
+                </div>
+            </section>
+            
+            <section class="playlist-section">
+                <h2 class="section-title"><i class="fas fa-stream"></i> 播放列表</h2>
+                <div id="playlistContainer" class="playlist-container">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>正在加载 playlist.m3u 文件...</p>
+                    </div>
+                </div>
+            </section>
         </div>
         
-        <div class="player">
-            <video id="video" controls></video>
-            <div class="info">
-                <div class="current-channel" id="current-channel">请选择频道</div>
-                <div class="status" id="status">就绪</div>
-            </div>
-        </div>
+        <footer>
+            <p>M3U播放列表生成器 &copy; 2023 | 自动读取同目录下的 playlist.m3u 文件</p>
+        </footer>
     </div>
 
     <script>
-        // 全局变量
-        let channels = [];
-        let currentChannel = null;
-        let hls = null;
-        let autoPlayIndex = 0; // 自动播放的频道索引
-
-        // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
-            loadPlaylist();
-            loadHLS();
-        });
-
-        // 加载HLS.js库
-        function loadHLS() {
-            if (typeof Hls === 'undefined') {
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.4.10/dist/hls.min.js';
-                script.onload = function() {
-                    console.log('HLS.js loaded');
-                };
-                document.head.appendChild(script);
-            }
-        }
-
-        // 加载playlist.m3u文件
-        async function loadPlaylist() {
-            const loadingEl = document.getElementById('loading');
-            const errorEl = document.getElementById('error');
-            const fileInfoEl = document.getElementById('file-info');
-            const channelsListEl = document.getElementById('channels-list');
+            // 获取DOM元素
+            const videoPlayer = document.getElementById('videoPlayer');
+            const playlistContainer = document.getElementById('playlistContainer');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const reloadBtn = document.getElementById('reloadBtn');
+            const currentPlaying = document.querySelector('.current-playing');
+            const channelInfo = document.querySelector('.channel-info');
             
-            loadingEl.style.display = 'block';
-            errorEl.style.display = 'none';
-            channelsListEl.innerHTML = '';
+            let playlist = [];
+            let currentIndex = -1;
             
-            try {
-                // 尝试从同目录加载playlist.m3u
-                const response = await fetch('playlist.m3u');
-                
-                if (!response.ok) {
-                    // 如果文件不存在，使用内置的测试频道
-                    throw new Error('playlist.m3u文件不存在，使用测试频道');
-                }
-                
-                const content = await response.text();
-                fileInfoEl.textContent = 'playlist.m3u 已加载';
-                
-                // 解析M3U文件
-                channels = parseM3U(content);
-                
-                if (channels.length === 0) {
-                    throw new Error('playlist.m3u中没有找到有效频道，使用测试频道');
-                }
-                
-            } catch (error) {
-                console.warn(error.message);
-                fileInfoEl.textContent = error.message;
-                
-                // 使用内置测试频道
-                channels = getTestChannels();
-            }
-            
-            loadingEl.style.display = 'none';
-            
-            if (channels.length > 0) {
-                renderChannels();
-                // 自动播放第一个频道
-                setTimeout(() => {
-                    if (channels.length > 0) {
-                        playChannel(channels[0], 0);
-                    }
-                }, 500);
-            } else {
-                errorEl.textContent = '没有找到任何可播放的频道';
-                errorEl.style.display = 'block';
-            }
-        }
-
-        // 解析M3U文件内容
-        function parseM3U(content) {
-            const lines = content.split('\n');
-            const parsedChannels = [];
-            let currentGroup = '未分组';
-            let channelIndex = 0;
-            
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].trim();
-                
-                if (line.startsWith('#EXTINF:')) {
-                    // 提取分组信息
-                    const groupMatch = line.match(/group-title="([^"]*)"/i);
-                    if (groupMatch) {
-                        currentGroup = groupMatch[1];
-                    }
-                    
-                    // 提取频道名称
-                    const nameMatch = line.match(/,(.*)/);
-                    let channelName = nameMatch ? nameMatch[1].trim() : `频道 ${channelIndex + 1}`;
-                    
-                    // 获取URL
-                    if (i + 1 < lines.length) {
-                        const url = lines[i + 1].trim();
-                        if (url && !url.startsWith('#')) {
-                            parsedChannels.push({
-                                id: channelIndex,
-                                name: channelName,
-                                url: url,
-                                group: currentGroup
-                            });
-                            channelIndex++;
-                            i++; // 跳过URL行
-                        }
-                    }
-                }
-            }
-            
-            return parsedChannels;
-        }
-
-        // 获取测试频道（备用）
-        function getTestChannels() {
-            return [
-                { 
-                    id: 0, 
-                    name: "测试电影频道", 
-                    url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-                    group: "测试"
-                },
-                { 
-                    id: 1, 
-                    name: "测试直播频道", 
-                    url: "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8",
-                    group: "测试"
-                },
-                { 
-                    id: 2, 
-                    name: "测试音乐频道", 
-                    url: "https://test-streams.mux.dev/audio-only/x36xhzz/audio.m3u8",
-                    group: "测试"
-                },
-                { 
-                    id: 3, 
-                    name: "测试体育频道", 
-                    url: "https://mnmedias.api.telequebec.tv/m3u8/29880.m3u8",
-                    group: "测试"
-                }
-            ];
-        }
-
-        // 渲染频道列表
-        function renderChannels() {
-            const channelsListEl = document.getElementById('channels-list');
-            channelsListEl.innerHTML = '';
-            
-            if (channels.length === 0) return;
-            
-            // 按分组组织频道
-            const groups = {};
-            channels.forEach(channel => {
-                if (!groups[channel.group]) {
-                    groups[channel.group] = [];
-                }
-                groups[channel.group].push(channel);
-            });
-            
-            // 渲染每个分组
-            Object.keys(groups).forEach(groupName => {
-                // 分组标题
-                const groupHeader = document.createElement('div');
-                groupHeader.className = 'group-header';
-                groupHeader.textContent = `${groupName} (${groups[groupName].length})`;
-                channelsListEl.appendChild(groupHeader);
-                
-                // 分组内的频道
-                groups[groupName].forEach(channel => {
-                    const channelItem = document.createElement('div');
-                    channelItem.className = 'channel-item';
-                    if (currentChannel && currentChannel.id === channel.id) {
-                        channelItem.classList.add('active');
-                    }
-                    
-                    channelItem.innerHTML = `
-                        <div class="channel-name">${channel.name}</div>
-                        <div class="channel-url">${channel.url}</div>
+            // 加载M3U文件
+            async function loadPlaylist() {
+                try {
+                    // 显示加载状态
+                    playlistContainer.innerHTML = `
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            <p>正在加载 playlist.m3u 文件...</p>
+                        </div>
                     `;
                     
-                    channelItem.onclick = () => playChannel(channel, channel.id);
+                    // 尝试从同目录下加载playlist.m3u文件
+                    const response = await fetch('playlist.m3u');
                     
-                    channelsListEl.appendChild(channelItem);
+                    if (!response.ok) {
+                        throw new Error(`HTTP错误: ${response.status}`);
+                    }
+                    
+                    const m3uContent = await response.text();
+                    parseM3U(m3uContent);
+                } catch (error) {
+                    console.error('加载M3U文件失败:', error);
+                    showError(`无法加载 playlist.m3u 文件: ${error.message}<br>请确保该文件与HTML在同一目录下。`);
+                }
+            }
+            
+            // 解析M3U内容
+            function parseM3U(content) {
+                const lines = content.split('\n');
+                playlist = [];
+                
+                // 解析M3U格式，提取频道信息
+                let currentChannel = null;
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    
+                    // 跳过空行和注释行（#EXTM3U是文件头）
+                    if (line === '' || line === '#EXTM3U') continue;
+                    
+                    // 如果是频道信息行
+                    if (line.startsWith('#EXTINF:')) {
+                        // 解析频道信息，格式如: #EXTINF:-1,Channel Name
+                        const channelInfo = line.substring(8); // 去掉#EXTINF:
+                        const commaIndex = channelInfo.indexOf(',');
+                        
+                        if (commaIndex !== -1) {
+                            const channelName = channelInfo.substring(commaIndex + 1);
+                            currentChannel = {
+                                name: channelName,
+                                url: null
+                            };
+                        }
+                    } 
+                    // 如果是URL行
+                    else if (currentChannel && (line.startsWith('http://') || line.startsWith('https://') || line.startsWith('rtmp://') || line.endsWith('.m3u8'))) {
+                        currentChannel.url = line;
+                        playlist.push(currentChannel);
+                        currentChannel = null;
+                    }
+                }
+                
+                // 如果没有解析到数据，尝试简单解析
+                if (playlist.length === 0) {
+                    console.log('尝试简单解析M3U文件...');
+                    
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        
+                        // 跳过空行和注释行
+                        if (line === '' || line.startsWith('#')) continue;
+                        
+                        // 如果是URL，添加到播放列表
+                        if (line.startsWith('http://') || line.startsWith('https://') || line.startsWith('rtmp://') || line.endsWith('.m3u8')) {
+                            playlist.push({
+                                name: `频道 ${playlist.length + 1}`,
+                                url: line
+                            });
+                        }
+                    }
+                }
+                
+                // 更新UI
+                updatePlaylistUI();
+            }
+            
+            // 更新播放列表UI
+            function updatePlaylistUI() {
+                if (playlist.length === 0) {
+                    playlistContainer.innerHTML = `
+                        <div class="empty-playlist">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                            <p>播放列表为空或未找到有效的M3U8链接</p>
+                            <p>请确保 playlist.m3u 文件包含有效的流媒体链接</p>
+                        </div>
+                    `;
+                    prevBtn.disabled = true;
+                    nextBtn.disabled = true;
+                    return;
+                }
+                
+                // 生成播放列表HTML
+                let playlistHTML = '';
+                
+                playlist.forEach((channel, index) => {
+                    const isActive = index === currentIndex;
+                    playlistHTML += `
+                        <div class="playlist-item ${isActive ? 'active' : ''}" data-index="${index}">
+                            <div class="item-number">${index + 1}</div>
+                            <div class="item-content">
+                                <div class="item-title">${channel.name}</div>
+                                <div class="item-url">${channel.url}</div>
+                            </div>
+                            <i class="fas fa-play" style="color: #4cc9f0; font-size: 1.2rem;"></i>
+                        </div>
+                    `;
                 });
+                
+                playlistContainer.innerHTML = playlistHTML;
+                
+                // 添加点击事件监听器
+                document.querySelectorAll('.playlist-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        playChannel(index);
+                    });
+                });
+                
+                // 更新按钮状态
+                prevBtn.disabled = currentIndex <= 0;
+                nextBtn.disabled = currentIndex >= playlist.length - 1;
+            }
+            
+            // 播放指定频道
+            function playChannel(index) {
+                if (index < 0 || index >= playlist.length) return;
+                
+                currentIndex = index;
+                const channel = playlist[index];
+                
+                // 更新播放器
+                videoPlayer.src = channel.url;
+                videoPlayer.load();
+                videoPlayer.play().catch(e => {
+                    console.error('播放失败:', e);
+                    showError(`播放失败: ${e.message}`);
+                });
+                
+                // 更新UI
+                currentPlaying.textContent = channel.name;
+                channelInfo.textContent = channel.url;
+                updatePlaylistUI();
+            }
+            
+            // 显示错误信息
+            function showError(message) {
+                playlistContainer.innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-circle"></i> ${message}
+                    </div>
+                `;
+            }
+            
+            // 事件监听器
+            prevBtn.addEventListener('click', function() {
+                if (currentIndex > 0) {
+                    playChannel(currentIndex - 1);
+                }
             });
             
-            // 更新文件信息
-            document.getElementById('file-info').textContent = 
-                `已加载 ${channels.length} 个频道 (${Object.keys(groups).length} 个分组)`;
-        }
-
-        // 播放频道
-        function playChannel(channel, index) {
-            currentChannel = channel;
-            autoPlayIndex = index;
-            
-            // 更新UI
-            document.getElementById('current-channel').textContent = `正在播放: ${channel.name}`;
-            document.getElementById('status').textContent = '正在加载...';
-            
-            // 更新频道列表选中状态
-            renderChannels();
-            
-            const video = document.getElementById('video');
-            
-            // 清理之前的HLS实例
-            if (hls) {
-                hls.destroy();
-                hls = null;
-            }
-            
-            // 重置视频源
-            video.src = '';
-            
-            // 检查是否是HLS流
-            if (channel.url.includes('.m3u8')) {
-                if (Hls && Hls.isSupported()) {
-                    hls = new Hls({
-                        enableWorker: true,
-                        lowLatencyMode: true,
-                        backBufferLength: 90
-                    });
-                    
-                    hls.loadSource(channel.url);
-                    hls.attachMedia(video);
-                    
-                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                        video.play().catch(e => {
-                            console.log("自动播放被阻止，请手动点击播放");
-                            document.getElementById('status').textContent = '加载完成，点击播放按钮';
-                        });
-                        document.getElementById('status').textContent = '播放中';
-                    });
-                    
-                    hls.on(Hls.Events.ERROR, function(event, data) {
-                        if (data.fatal) {
-                            switch(data.type) {
-                                case Hls.ErrorTypes.NETWORK_ERROR:
-                                    document.getElementById('status').textContent = '网络错误，重试中...';
-                                    hls.startLoad();
-                                    break;
-                                case Hls.ErrorTypes.MEDIA_ERROR:
-                                    hls.recoverMediaError();
-                                    break;
-                                default:
-                                    document.getElementById('status').textContent = '播放失败，尝试其他频道';
-                                    break;
-                            }
-                        }
-                    });
-                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    // Safari原生支持
-                    video.src = channel.url;
-                    video.addEventListener('loadedmetadata', function() {
-                        video.play().catch(e => {
-                            console.log("自动播放被阻止");
-                        });
-                        document.getElementById('status').textContent = '播放中';
-                    });
-                } else {
-                    document.getElementById('status').textContent = '浏览器不支持HLS播放';
+            nextBtn.addEventListener('click', function() {
+                if (currentIndex < playlist.length - 1) {
+                    playChannel(currentIndex + 1);
                 }
-            } else {
-                // 普通视频文件
-                video.src = channel.url;
-                video.addEventListener('loadeddata', function() {
-                    video.play().catch(e => {
-                        console.log("自动播放被阻止");
-                    });
-                    document.getElementById('status').textContent = '播放中';
-                });
-            }
+            });
             
-            // 视频事件监听
-            video.onerror = function() {
-                document.getElementById('status').textContent = '播放错误，尝试其他频道';
-            };
-            
-            video.onplay = function() {
-                document.getElementById('status').textContent = '播放中';
-            };
-            
-            video.onpause = function() {
-                document.getElementById('status').textContent = '已暂停';
-            };
-            
-            video.onwaiting = function() {
-                document.getElementById('status').textContent = '缓冲中...';
-            };
-            
-            video.onplaying = function() {
-                document.getElementById('status').textContent = '播放中';
-            };
-        }
-
-        // 键盘快捷键
-        document.addEventListener('keydown', function(e) {
-            // 空格键：播放/暂停
-            if (e.code === 'Space') {
-                e.preventDefault();
-                const video = document.getElementById('video');
-                if (video.paused) {
-                    video.play();
-                } else {
-                    video.pause();
-                }
-            }
-            
-            // 上下箭头：切换频道
-            if (e.code === 'ArrowDown' || e.code === 'ArrowUp') {
-                if (channels.length === 0) return;
-                
-                e.preventDefault();
-                let newIndex = autoPlayIndex;
-                
-                if (e.code === 'ArrowDown') {
-                    newIndex = (autoPlayIndex + 1) % channels.length;
-                } else if (e.code === 'ArrowUp') {
-                    newIndex = autoPlayIndex - 1;
-                    if (newIndex < 0) newIndex = channels.length - 1;
-                }
-                
-                playChannel(channels[newIndex], newIndex);
-                
-                // 滚动到选中的频道
-                const activeItem = document.querySelector('.channel-item.active');
-                if (activeItem) {
-                    activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }
-            
-            // F键：全屏
-            if (e.code === 'KeyF') {
-                e.preventDefault();
-                const video = document.getElementById('video');
-                if (video.requestFullscreen) {
-                    video.requestFullscreen();
-                }
-            }
-        });
-
-        // 自动重试加载
-        setTimeout(() => {
-            if (channels.length === 0) {
-                document.getElementById('error').textContent = '正在重试加载...';
-                document.getElementById('error').style.display = 'block';
+            reloadBtn.addEventListener('click', function() {
                 loadPlaylist();
-            }
-        }, 3000);
+            });
+            
+            // 键盘快捷键支持
+            document.addEventListener('keydown', function(event) {
+                // 左箭头键 - 上一个频道
+                if (event.key === 'ArrowLeft' && !prevBtn.disabled) {
+                    prevBtn.click();
+                }
+                // 右箭头键 - 下一个频道
+                else if (event.key === 'ArrowRight' && !nextBtn.disabled) {
+                    nextBtn.click();
+                }
+                // 空格键 - 播放/暂停
+                else if (event.key === ' ' && videoPlayer.src) {
+                    if (videoPlayer.paused) {
+                        videoPlayer.play();
+                    } else {
+                        videoPlayer.pause();
+                    }
+                    event.preventDefault(); // 防止页面滚动
+                }
+            });
+            
+            // 初始加载播放列表
+            loadPlaylist();
+            
+            // 播放器事件监听
+            videoPlayer.addEventListener('error', function() {
+                if (videoPlayer.src) {
+                    showError(`无法播放当前流媒体链接: ${playlist[currentIndex]?.url}`);
+                }
+            });
+            
+            videoPlayer.addEventListener('loadeddata', function() {
+                console.log('视频已加载，可以播放');
+            });
+        });
     </script>
 </body>
 </html>
