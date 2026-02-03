@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>水波涟漪测试</title>
+<style>
+* { margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { 
+    /* 使用在线图片，排除本地图片加载问题 */
+    background: url(https://hyf.serv00.net/img.php) center/cover no-repeat;
+    position: relative;
+    overflow: hidden;
+}
+.error {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 0, 0, 0.8);
+    color: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    z-index: 9999;
+    display: none;
+}
+</style>
+</head>
+<body>
+<div class="error"></div>
+
+<!-- 使用CDN加载，避免本地文件问题 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.ripples@0.6.3/dist/jquery.ripples.min.js"></script>
+
+<script>
+$(function() {
+    // 1. 检测WebGL
+    if (!window.WebGLRenderingContext) {
+        $('.error').show().text('浏览器不支持WebGL！');
+        return;
+    }
+
+    // 2. 强制等待背景图加载完成
+    var bgImg = new Image();
+    bgImg.src = $('body').css('background-image').replace(/url\(|\)|"/g, '');
+    bgImg.onload = function() {
+        try {
+            // 3. 初始化波纹（增加容错配置）
+            $('body').ripples({
+                resolution: 256,       // 降低分辨率，提升兼容性
+                dropRadius: 15,
+                perturbance: 0.05,
+                interactive: true      // 强制开启鼠标交互
+            });
+
+            // 4. 手动触发一个波纹，验证功能
+            setTimeout(() => {
+                $('body').ripples('drop', $(window).width()/2, $(window).height()/2, 30, 0.1);
+            }, 1000);
+
+        } catch (e) {
+            $('.error').show().text('初始化失败：' + e.message);
+            console.log('详细错误：', e);
+        }
+    };
+
+    // 背景图加载失败处理
+    bgImg.onerror = function() {
+        $('.error').show().text('背景图片加载失败！');
+    };
+});
+</script>
+</body>
+</html>
